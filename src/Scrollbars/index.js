@@ -215,7 +215,7 @@ export default class Scrollbars extends Component {
         if (typeof document === 'undefined' || !this.view) return;
         const { view, trackHorizontal, trackVertical, thumbHorizontal, thumbVertical } = this;
         view.addEventListener('scroll', this.handleScroll);
-        if (!getScrollbarWidth()) return;
+        if (!this.props.renderCustomScrollBars && !getScrollbarWidth()) return;
         trackHorizontal.addEventListener('mouseenter', this.handleTrackMouseEnter);
         trackHorizontal.addEventListener('mouseleave', this.handleTrackMouseLeave);
         trackHorizontal.addEventListener('mousedown', this.handleHorizontalTrackMouseDown);
@@ -232,7 +232,7 @@ export default class Scrollbars extends Component {
         if (typeof document === 'undefined' || !this.view) return;
         const { view, trackHorizontal, trackVertical, thumbHorizontal, thumbVertical } = this;
         view.removeEventListener('scroll', this.handleScroll);
-        if (!getScrollbarWidth()) return;
+        if (this.props.renderCustomScrollBars && !getScrollbarWidth()) return;
         trackHorizontal.removeEventListener('mouseenter', this.handleTrackMouseEnter);
         trackHorizontal.removeEventListener('mouseleave', this.handleTrackMouseLeave);
         trackHorizontal.removeEventListener('mousedown', this.handleHorizontalTrackMouseDown);
@@ -444,9 +444,9 @@ export default class Scrollbars extends Component {
     }
 
     _update(callback) {
-        const { onUpdate, hideTracksWhenNotNeeded } = this.props;
+        const { renderCustomScrollBars, onUpdate, hideTracksWhenNotNeeded } = this.props;
         const values = this.getValues();
-        if (getScrollbarWidth()) {
+        if (!renderCustomScrollBars && getScrollbarWidth()) {
             const { scrollLeft, clientWidth, scrollWidth } = values;
             const trackHorizontalWidth = getInnerWidth(this.trackHorizontal);
             const thumbHorizontalWidth = this.getThumbHorizontalWidth();
@@ -482,9 +482,9 @@ export default class Scrollbars extends Component {
     }
 
     render() {
-        const scrollbarWidth = getScrollbarWidth();
         /* eslint-disable no-unused-vars */
         const {
+            renderCustomScrollBars,
             onScroll,
             onScrollFrame,
             onScrollStart,
@@ -511,6 +511,7 @@ export default class Scrollbars extends Component {
             ...props
         } = this.props;
         /* eslint-enable no-unused-vars */
+        const scrollbarWidth = renderCustomScrollBars ? false : getScrollbarWidth();
 
         const { didMountUniversal } = this.state;
 
@@ -610,6 +611,7 @@ Scrollbars.propTypes = {
     thumbSize: PropTypes.number,
     thumbMinSize: PropTypes.number,
     hideTracksWhenNotNeeded: PropTypes.bool,
+    renderCustomScrollBars: PropTypes.bool,
     autoHide: PropTypes.bool,
     autoHideTimeout: PropTypes.number,
     autoHideDuration: PropTypes.number,
@@ -636,6 +638,7 @@ Scrollbars.defaultProps = {
     tagName: 'div',
     thumbMinSize: 30,
     hideTracksWhenNotNeeded: false,
+    renderCustomScrollBars: false,
     autoHide: false,
     autoHideTimeout: 1000,
     autoHideDuration: 200,
